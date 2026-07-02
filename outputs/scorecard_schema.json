@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "IFRS S2 Climate Disclosure Scorecard",
+  "description": "结构化评估结果输出格式，用于批量测试、数据库沉淀和跨公司对比",
+  "type": "object",
+  "required": ["metadata", "summary", "clause_scores", "investment_usefulness", "transition_plan"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["company_name", "report_year", "assessment_date", "standard_version"],
+      "properties": {
+        "company_name": { "type": "string", "description": "公司名称" },
+        "company_ticker": { "type": "string", "description": "股票代码（如有）" },
+        "sector": { "type": "string", "description": "行业分类" },
+        "report_year": { "type": "string", "description": "报告年度" },
+        "report_title": { "type": "string", "description": "报告全称" },
+        "disclosure_type": {
+          "type": "string",
+          "enum": ["ISSB_S2", "TCFD", "ESG_report", "climate_action_plan", "annual_report_integrated"],
+          "description": "报告类型分类"
+        },
+        "assessment_date": { "type": "string", "format": "date", "description": "评估日期" },
+        "standard_version": {
+          "type": "string",
+          "enum": ["IFRS_S2_2023_base", "IFRS_S2_2025_GHG_amendments"],
+          "description": "评估标准版本"
+        },
+        "assessor_notes": { "type": "string", "description": "评估者备注" }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_clauses", "score_full", "score_partial", "score_none"],
+      "properties": {
+        "total_clauses": { "type": "integer", "const": 96, "description": "评估条款总数" },
+        "score_full": { "type": "integer", "description": "● 满足的条款数" },
+        "score_partial": { "type": "integer", "description": "◐ 部分满足的条款数" },
+        "score_none": { "type": "integer", "description": "○ 未满足的条款数" },
+        "score_na": { "type": "integer", "description": "不适用的条款数（如非金融业的融资排放）" },
+        "pct_full": { "type": "number", "description": "● 占比（%）" },
+        "pct_partial": { "type": "number", "description": "◐ 占比（%）" },
+        "pct_none": { "type": "number", "description": "○ 占比（%）" },
+        "highlights": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "主要亮点（分条）"
+        },
+        "gaps": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "主要缺口（分条）"
+        },
+        "red_flags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "红旗事项（如有）"
+        }
+      }
+    },
+    "clause_scores": {
+      "type": "array",
+      "minItems": 96,
+      "maxItems": 96,
+      "items": {
+        "type": "object",
+        "required": ["id", "clause", "requirement_summary", "score"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^ID-\\d{3}$", "description": "条款唯一标识 ID-001 至 ID-096" },
+          "clause": { "type": "string", "description": "S2 条款编号" },
+          "requirement_summary": { "type": "string", "description": "要求简述" },
+          "score": {
+            "type": "string",
+            "enum": ["full", "partial", "none", "na"],
+            "description": "评分：full=●, partial=◐, none=○, na=不适用"
+          },
+          "evidence_status": {
+            "type": "string",
+            "enum": ["current_practice", "historical_result", "future_commitment", "proxy_metric", "external_scenario_assumption", "not_disclosed"],
+            "description": "证据性质分类"
+          },
+          "actual_disclosure": { "type": "string", "description": "企业实际披露内容摘要" },
+          "evidence_page": { "type": "string", "description": "证据所在页码/章节" },
+          "gap_recommendation": { "type": "string", "description": "差距和改进建议" }
+        }
+      },
+      "description": "96 条逐款评分"
+    },
+    "investment_usefulness": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "required": ["variable_id", "variable_name", "rating"],
+        "properties": {
+          "variable_id": { "type": "integer", "minimum": 1, "maximum": 12 },
+          "variable_name": { "type": "string" },
+          "related_clauses": { "type": "string", "description": "对应 S2 条款" },
+          "disclosure_content": { "type": "string", "description": "企业披露内容" },
+          "rating": {
+            "type": "string",
+            "enum": ["predictive_increment", "confirmatory", "boilerplate", "not_applicable"],
+            "description": "有用性评级"
+          },
+          "rationale": { "type": "string", "description": "判定理由" }
+        }
+      },
+      "description": "12 个投资模型变量逐项评估"
+    },
+    "transition_plan": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "required": ["dimension", "assessment", "related_scores"],
+        "properties": {
+          "dimension": {
+            "type": "string",
+            "enum": ["target_science", "action_pathway", "resource_allocation", "key_dependencies", "governance_accountability", "progress_tracking", "carbon_credit_reliance"]
+          },
+          "assessment": { "type": "string", "description": "一句话评估" },
+          "related_scores": { "type": "string", "description": "引用的条款评分" }
+        }
+      },
+      "description": "转型计划 7 维度评估"
+    },
+    "key_findings": {
+      "type": "object",
+      "properties": {
+        "risk_direction": { "type": "string", "description": "气候风险方向判断" },
+        "most_useful_disclosures": {
+          "type": "array",
+          "items": { "type": "string" },
+          "maxItems": 3,
+          "description": "最有用的 2-3 条披露"
+        },
+        "information_gaps": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "信息缺口"
+        }
+      }
+    },
+    "readability_bonus": {
+      "type": "object",
+      "properties": {
+        "has_s2_index": { "type": "boolean", "description": "是否有 IFRS S2 逐条索引" },
+        "has_tcfd_index": { "type": "boolean", "description": "是否有 TCFD 索引" },
+        "has_independent_climate_report": { "type": "boolean", "description": "是否有独立气候报告" },
+        "notes": { "type": "string", "description": "可读性与可检索性备注" }
+      },
+      "description": "报告可读性与可检索性加分项（不计入 96 条评分）"
+    }
+  }
+}
